@@ -10,9 +10,9 @@ connection = 'postgres://{0}:{1}@{2}/{3}'.format(database_user,
                                                  database_host,
                                                  database_name)
 
-from inventory_service.processed_goods.processed_goods import pgoods
-from inventory_service.api.inventory_api import apibp
-from inventory_service.raw_milk.milk_produced import milkp
+from inventory_service.processed_goods import pgoods
+from inventory_service.inventory_api import apibp
+from inventory_service.milk_produced import milkp
 app.blueprint(pgoods)
 app.blueprint(apibp)
 app.blueprint(milkp)
