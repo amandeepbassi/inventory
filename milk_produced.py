@@ -1,7 +1,7 @@
 from sanic.response import json
 from aiopg.sa import create_engine
-from inventory_service import connection
-from inventory_service.models import milk_produced, app
+from config import connection
+from models import milk_produced
 from sanic import Blueprint
 
 milkp = Blueprint('milkp')

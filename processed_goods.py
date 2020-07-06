@@ -1,9 +1,7 @@
 from sanic.response import json
 from aiopg.sa import create_engine
-from inventory_service import connection
-from inventory_service.models import p_goods, app, milk_produced
-from inventory_service.alert_class import StockAvailable
-import sqlalchemy as sa
+from config import connection
+from models import p_goods, milk_produced
 from sanic import Blueprint
 
 pgoods = Blueprint('pgoods')

@@ -1,11 +1,10 @@
-from datetime import date, timedelta
+from datetime import timedelta
 import datetime
 from sanic.response import json
 from aiopg.sa import create_engine
-from inventory_service import connection
-from inventory_service.models import milk_produced, app, p_goods
-import json as dicttojson
-from sanic import request
+from config import connection
+from models import p_goods
+
 
 class Alert_Messages:
     def __init__(self, tb_name):

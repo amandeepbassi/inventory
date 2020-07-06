@@ -1,8 +1,8 @@
 from sanic.response import json
 from aiopg.sa import create_engine
-from inventory_service import connection
-from inventory_service.models import p_goods, app, milk_produced
-from inventory_service.alert_class import StockAvailable
+from config import connection
+from models import p_goods
+from alert_class import StockAvailable
 from sanic import Blueprint
 
 apibp = Blueprint('api')

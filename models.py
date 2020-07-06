@@ -1,6 +1,7 @@
 import sqlalchemy as sa
-from sanic import Sanic
+
 metadata = sa.MetaData()
+
 milk_produced = sa.Table('raw_milk', metadata,
                sa.Column('id', sa.Integer, primary_key=True),
                sa.Column('date', sa.DATE),
@@ -18,4 +19,3 @@ p_goods = sa.Table('processed_goods', metadata,
                sa.Column('quantity_used', sa.Integer),
                sa.Column('stock_left', sa.Integer))
 
-app= Sanic("__main__")
