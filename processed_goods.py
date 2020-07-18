@@ -1,48 +1,44 @@
 from sanic.response import json
 from aiopg.sa import create_engine
-from config import connection
-from models import p_goods, milk_produced
+from config import Config
+from model import p_goods, connection
 from sanic import Blueprint
+from sanic.exceptions import NotFound, ServerError
 
-pgoods = Blueprint('pgoods')
+bp_pgoods = Blueprint('processed_goods_blueprint')
 
-@pgoods.route('/processed_goods', methods=["GET", 'POST'])
-async def processed_goods(request):
+@bp_pgoods.route('/processedgoods', methods=["GET", 'POST'])
+async def bp_processed_goods(request):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
+            results = {}
             if request.method == 'POST':
-                data = request.json
-                last_row = await (await conn.execute(milk_produced.select().order_by(milk_produced.select().columns['id'].desc()))).fetchone()
-                quantity_produced = data['quantity_produced']
-                quantity_used = data['quantity_used']
-                product_id = data['product_id']
-                add_stock = last_row.stock - quantity_used
-                if last_row.stock < quantity_used:
-                    return json({"Error": "Not enough raw milk is present"})
+                insert_query = p_goods.insert(inline=True,returning=[p_goods.c.pg_id]).values(request.json)
+                try:
+                    result_id = await(await conn.execute(insert_query)).fetchone()
+                    url_prefix = str(Config.HOST_URL) + ":" + str(Config.HOST_PORT) + "/processedgoods/" + str(result_id[0])
+                except Exception as e_x:
+                    print(e_x)
+                    results = {"Inserted Values": "Values have been not successfully inserted",
+                                "Error": str(e_x)}
                 else:
-                    await conn.execute(milk_produced.insert().values(raw_milk=0, stock=add_stock))
-                    await conn.execute(p_goods.insert().values(product_id=product_id,
-                                                                    quantity_produced = quantity_produced,
-                                                                    quantity_used = quantity_used))
-                    return json({"message": "200ok"})
-            else:
-                data1 = []
-                s_query = p_goods.select()
-                async for row in conn.execute(s_query):
-                # row = await (await conn.execute(s_query.order_by(p_goods.columns['pg_id'].desc()))).fetchone()
-                    id = row.pg_id
-                    date = str(row.date)
-                    time = str(row.time)
-                    product_id = row.product_id
-                    quantity_produced = row.quantity_produced
-                    quantity_used = row.quantity_used
-                    result = {"date": date, "time": time, "product_id": product_id, "quantity_produced": quantity_produced,
-                                   "quantity_used": quantity_used}
-                    data1.append(result)
-                print(data1)
-                return json({"data": data1})
+                    results = {"Inserted Values": "Values have been successfully inserted",
+                                "location": url_prefix}
+                    return json(results, status=201)
+            elif request.method == 'GET':
+                select_query = p_goods.select()
+                async for row in conn.execute(select_query):
+                    result = []
+                    result.append({"pg_timestamp": str(row.pg_timestamp), "pg_product_id": str(row.pg_product_id), "pg_quantity_produced": row.pg_quantity_produced, "pg_quantity_used": row.pg_quantity_used})
+                    results.__setitem__(row['pg_id'], result)
+                    return json(results, status=200)
 
 
+@bp_pgoods.exception(NotFound)
+async def ignore_404(request, exception):
+    return json({"Not Found": "Page Not Found"}, status=404)
 
 
-# app.run(host='0.0.0.0', port=8000)
+@bp_pgoods.exception(ServerError)
+async def ignore_503(request, exception):
+    return json({"Server Error": "503 internal server error"}, status=503)

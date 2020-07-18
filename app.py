@@ -1,11 +1,14 @@
 from sanic import Sanic
-app = Sanic('__name__')
+from milk_produced import milk_produce
+from processed_goods import bp_pgoods
+#from inventory_api import apibp
+from milk_produced import bp_milk_produced
 
-from processed_goods import pgoods
-from inventory_api import apibp
-from milk_produced import milkp
-app.blueprint(pgoods)
-app.blueprint(apibp)
-app.blueprint(milkp)
+app = Sanic(name='inventory_microservice')
+app.config.from_object('config.Config')
+app.blueprint(bp_pgoods)
+#app.blueprint(apibp)
+app.blueprint(bp_milk_produced)
 
-app.run(host='0.0.0.0', port=8000)
+if __name__ == '__main__':
+    app.run(host=app.config.HOST_URL, port=app.config.HOST_PORT)

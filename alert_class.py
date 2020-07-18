@@ -2,8 +2,8 @@ from datetime import timedelta
 import datetime
 from sanic.response import json
 from aiopg.sa import create_engine
-from config import connection
-from models import p_goods
+from config import Config
+from model import p_goods
 
 
 class Alert_Messages:

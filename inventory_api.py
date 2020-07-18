@@ -1,7 +1,7 @@
 from sanic.response import json
 from aiopg.sa import create_engine
-from config import connection
-from models import p_goods
+from config import Config
+from model import p_goods
 from alert_class import StockAvailable
 from sanic import Blueprint
 
