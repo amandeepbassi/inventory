@@ -8,8 +8,21 @@ connection = 'postgres://{0}:{1}@{2}/{3}'.format(Config.DATABASE_USER,
 
 milk_produce = sa.Table('tb_raw_milk', sa.MetaData(),
                sa.Column('raw_milk_id', sa.String, primary_key=True),
-               sa.Column('raw_milk_timestamp', sa.TIMESTAMP, nullable=False),
-               sa.Column('raw_milk_stock', sa.Integer, nullable=False))
+               sa.Column('raw_milk_farm_id', sa.String, nullable=False),
+               sa.Column('raw_milk_product_id', sa.String, nullable=False),
+               sa.Column('raw_milk_product_quantity', sa.Integer, nullable=False),
+               sa.Column('raw_milk_product_price', sa.Float, nullable=False),
+               sa.Column('raw_milk_product_units', sa.VARCHAR(10), nullable=False),
+               sa.Column('raw_milk_timestamp', sa.TIMESTAMP, nullable=False))
+
+milk_price = sa.Table('tb_raw_milk_price', sa.MetaData(),
+                     sa.Column('rmp_id', sa.String, primary_key=True),
+                     sa.Column('rmp_farm_id', sa.String, nullable=False),
+                     sa.Column('rmp_product_id', sa.String, nullable=False),
+                     sa.Column('rmp_total_product_quantity', sa.Integer, nullable=False),
+                     sa.Column('rmp_avg_price', sa.Float, nullable=False),
+                     sa.Column('rmp_units', sa.VARCHAR(10), nullable=False),
+                     sa.Column('rmp_date', sa.Date, nullable=False))
 
 p_goods = sa.Table('tb_processed_goods', sa.MetaData(),
                sa.Column('pg_id', sa.String, primary_key=True),
