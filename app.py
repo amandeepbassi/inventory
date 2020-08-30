@@ -2,13 +2,14 @@ from sanic import Sanic
 from milk_produced import milk_produce
 from processed_goods import bp_pgoods
 from net_milk_price import bp_milk_price
+from processed_goods_price import bp_pg_price
 #from inventory_api import apibp
 from milk_produced import bp_milk_produced
 
 app = Sanic(name='inventory_microservice')
 app.config.from_object('config.Config')
 app.blueprint(bp_pgoods)
-#app.blueprint(apibp)
+app.blueprint(bp_pg_price)
 app.blueprint(bp_milk_produced)
 app.blueprint(bp_milk_price)
 
