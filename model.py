@@ -50,7 +50,7 @@ p_goods_price = sa.Table('tb_processed_goods_price', sa.MetaData(),
                         sa.Column('pgp_quantity_used', sa.Integer, nullable=False),
                         sa.Column('pgp_milk_id', sa.String, nullable=False))
 
-net_stock = sa.Table('tb_net_stock', sa.MetaData(),
+net_stock_value = sa.Table('tb_net_stock', sa.MetaData(),
                     sa.Column('net_stock_id', sa.String, primary_key=True),
                     sa.Column('net_stock_product_id', sa.String, nullable=False),
                     sa.Column('net_stock_product_quantity', sa.Integer, nullable=False),

@@ -98,7 +98,6 @@ async def bp_processed_goodsbydate(request, pg_farm_id):
         return json(results, status=200)
 
 
-
 @bp_pgoods.exception(NotFound)
 async def ignore_404(request, exception):
     return json({"Not Found": "Page Not Found"}, status=404)

@@ -24,3 +24,13 @@ async def bp_get_milk_price(request, pgp_farm_id):
                 results.__setitem__('pgp_date', str(results['pgp_date']))
                 results.__setitem__('pgp_milk_id', str(results['pgp_milk_id']))
         return json(results, status=200)
+
+
+@bp_pg_price.exception(NotFound)
+async def ignore_404(request, exception):
+    return json({"Not Found": "Page Not Found"}, status=404)
+
+
+@bp_pg_price.exception(ServerError)
+async def ignore_503(request, exception):
+    return json({"Server Error": "503 internal server error"}, status=503)

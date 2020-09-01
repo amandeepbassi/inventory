@@ -73,6 +73,7 @@ async def get_current_milk(request, raw_milk_farm_id):
         async with engine.acquire() as conn:
             results = {}
             select_query = milk_produce.select().where(and_(milk_produce.c.raw_milk_farm_id == raw_milk_farm_id, func.date(milk_produce.c.raw_milk_timestamp) == date.today()))
+            #select_query = milk_produce.select().where(milk_produce.c.raw_milk_farm_id==raw_milk_farm_id)
             async for row in conn.execute(select_query):
                 result = []
                 result.append({"raw_milk_farm_id": str(row.raw_milk_farm_id), "raw_milk_product_id": str(row.raw_milk_product_id), "raw_milk_product_quantity": str(row.raw_milk_product_quantity), "raw_milk_product_price": str(row.raw_milk_product_price), "raw_milk_product_units": str(row.raw_milk_product_units), "raw_milk_timestamp": str(row.raw_milk_timestamp)})
