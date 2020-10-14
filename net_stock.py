@@ -6,11 +6,15 @@ from sanic import Blueprint
 from sanic.exceptions import NotFound, ServerError
 from sqlalchemy.sql import select, func
 from sqlalchemy import and_
+import json as regularjson
+from sanic_jwt.decorators import protected
+
 
 bp_net_stock = Blueprint('net_stock_blueprint')
 
 
-@bp_net_stock.route('/netstock/<product_id:string>', methods=['GET'])
+@bp_net_stock.route(uri='/netstock/<product_id:string>', methods=['GET'])
+@protected(initialized_on=bp_net_stock)
 async def net_stock(request, product_id):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -24,11 +28,13 @@ async def net_stock(request, product_id):
             results = {"product_count": str(total_products_count[0])}
         return json(results, status=200)
 
+
 @bp_net_stock.route('/updatenetstock', methods=['POST'])
+@protected(initialized_on=bp_net_stock)
 async def update_net_stock(request):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
-            results = {}       
+            results = {}
             t1 = await conn.begin(isolation_level='SERIALIZABLE')
             select_query = select([net_stock_value.c.net_stock_product_quantity]).where(and_(net_stock_value.c.net_stock_product_id == request.json['net_stock_product_id'], net_stock_value.c.net_stock_vendor_id == request.json['net_stock_vendor_id']))          
             try:
@@ -51,11 +57,13 @@ async def update_net_stock(request):
 
 
 @bp_net_stock.exception(NotFound)
+@protected(initialized_on=bp_net_stock)
 async def ignore_404(request, exception):
     return json({"Not Found": "Page Not Found"}, status=404)
 
 
 @bp_net_stock.exception(ServerError)
+@protected(initialized_on=bp_net_stock)
 async def ignore_503(request, exception):
     return json({"Server Error": "503 internal server error"}, status=503)
 

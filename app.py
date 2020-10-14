@@ -6,8 +6,15 @@ from processed_goods_price import bp_pg_price
 #from inventory_api import apibp
 from milk_produced import bp_milk_produced
 from net_stock import bp_net_stock
+from sanic_jwt import Initialize
+
 
 app = Sanic(name='inventory_microservice')
+Initialize(bp_pgoods, app=app, auth_mode=False)
+Initialize(bp_pg_price, app=app, auth_mode=False)
+Initialize(bp_milk_produced, app=app, auth_mode=False)
+Initialize(bp_milk_price, app=app, auth_mode=False)
+Initialize(bp_net_stock, app=app, auth_mode=False)
 app.config.from_object('config.Config')
 app.blueprint(bp_pgoods)
 app.blueprint(bp_pg_price)

@@ -6,10 +6,14 @@ from sanic import Blueprint
 from sanic.exceptions import NotFound, ServerError
 from sqlalchemy.sql import select, func
 from sqlalchemy import and_
+from sanic_jwt.decorators import protected
+
 
 bp_pg_price = Blueprint('pg_price')
 
-@bp_pg_price.route('/pgprice/<pgp_farm_id:string>', methods=['GET'])
+
+@bp_pg_price.route(uri='/pgprice/<pgp_farm_id:string>', methods=['GET'])
+@protected(initialized_on=bp_pg_price)
 async def bp_get_milk_price(request, pgp_farm_id):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -27,10 +31,12 @@ async def bp_get_milk_price(request, pgp_farm_id):
 
 
 @bp_pg_price.exception(NotFound)
+@protected(initialized_on=bp_pg_price)
 async def ignore_404(request, exception):
     return json({"Not Found": "Page Not Found"}, status=404)
 
 
 @bp_pg_price.exception(ServerError)
+@protected(initialized_on=bp_pg_price)
 async def ignore_503(request, exception):
     return json({"Server Error": "503 internal server error"}, status=503)

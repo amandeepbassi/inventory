@@ -7,11 +7,14 @@ from sanic.exceptions import NotFound, ServerError
 from sqlalchemy import and_
 from sqlalchemy.sql import select, func
 from datetime import date
+from sanic_jwt.decorators import protected
+
 
 bp_pgoods = Blueprint('processed_goods_blueprint')
 
 
-@bp_pgoods.route('/processedgoods/<pg_id:string>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
+@bp_pgoods.route(uri='/processedgoods/<pg_id:string>', methods=['GET', 'PATCH', 'PUT', 'DELETE'])
+@protected(initialized_on=bp_pgoods)
 async def bp_goods(request, pg_id):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -59,7 +62,8 @@ async def bp_goods(request, pg_id):
 
 
 
-@bp_pgoods.route('/processedgoods', methods=['POST', 'GET'])
+@bp_pgoods.route(uri='/processedgoods', methods=['POST', 'GET'])
+@protected(initialized_on=bp_pgoods)
 async def bp_processed_goods(request):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -80,7 +84,8 @@ async def bp_processed_goods(request):
                 pass
 
 
-@bp_pgoods.route('/processedgoodsbydate/<pg_farm_id:string>', methods=['GET'])
+@bp_pgoods.route(uri='/processedgoodsbydate/<pg_farm_id:string>', methods=['GET'])
+@protected(initialized_on=bp_pgoods)
 async def bp_processed_goodsbydate(request, pg_farm_id):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -99,10 +104,12 @@ async def bp_processed_goodsbydate(request, pg_farm_id):
 
 
 @bp_pgoods.exception(NotFound)
+@protected(initialized_on=bp_pgoods)
 async def ignore_404(request, exception):
     return json({"Not Found": "Page Not Found"}, status=404)
 
 
 @bp_pgoods.exception(ServerError)
+@protected(initialized_on=bp_pgoods)
 async def ignore_503(request, exception):
     return json({"Server Error": "503 internal server error"}, status=503)

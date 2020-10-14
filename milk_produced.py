@@ -7,15 +7,18 @@ from sanic.exceptions import NotFound, ServerError
 from sqlalchemy.sql import select, func
 from datetime import date
 from sqlalchemy import and_
+from sanic_jwt.decorators import protected
 
 bp_milk_produced = Blueprint('milk_produced_blueprint')
 
 
-@bp_milk_produced.route("/milkproduced", methods=['POST'])
+@bp_milk_produced.route(uri="/milkproduced", methods=['POST'])
+@protected(initialized_on=bp_milk_produced)
 async def bp_post_milk_produced(request):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
             results = {}
+            url_prefix = ''
             if request.method == 'POST':
                 insert_query = milk_produce.insert(inline=True,returning=[milk_produce.c.raw_milk_id]).values(request.json)
                 try:
@@ -33,7 +36,8 @@ async def bp_post_milk_produced(request):
 
 
 
-@bp_milk_produced.route('/milkproduced/<raw_milk_id:string>', methods=['PUT', 'PATCH', 'DELETE'])
+@bp_milk_produced.route(uri='/milkproduced/<raw_milk_id:string>', methods=['PUT', 'PATCH', 'DELETE'])
+@protected(initialized_on=bp_milk_produced)
 async def bp_raw_milk_produced(request, raw_milk_id):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -67,7 +71,9 @@ async def bp_raw_milk_produced(request, raw_milk_id):
 
         return json(results, status=200)
 
-@bp_milk_produced.route('/milkproduced/<raw_milk_farm_id:string>', methods=['GET'])
+
+@bp_milk_produced.route(uri='/milkproduced/<raw_milk_farm_id:string>', methods=['GET'])
+@protected(initialized_on=bp_milk_produced)
 async def get_current_milk(request, raw_milk_farm_id):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
@@ -85,10 +91,12 @@ async def get_current_milk(request, raw_milk_farm_id):
 
 
 @bp_milk_produced.exception(NotFound)
+@protected(initialized_on=bp_milk_produced)
 async def ignore_404(request, exception):
     return json({"Not Found": "Page Not Found"}, status=404)
 
 
 @bp_milk_produced.exception(ServerError)
+@protected(initialized_on=bp_milk_produced)
 async def ignore_503(request, exception):
     return json({"Server Error": "503 internal server error"}, status=503)

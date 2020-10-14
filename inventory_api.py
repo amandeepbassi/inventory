@@ -4,10 +4,13 @@ from config import Config
 from model import p_goods
 from alert_class import StockAvailable
 from sanic import Blueprint
+from sanic_jwt.decorators import protected
 
-apibp = Blueprint('api')
+apibp = Blueprint(name='inventory_api_blueprint')
 
-@apibp.route('/quantity_available/')
+
+@apibp.route(uri='/quantity_available/', methods=['GET'])
+@protected(initialized_on=apibp)
 async def check_quantity(request):
     p_id = request.json['product_id']
     stock = StockAvailable(p_id)
@@ -16,6 +19,7 @@ async def check_quantity(request):
     return json({"product": p_id, "quantity": avl})
 
 @apibp.route('/update_inventory', methods=["GET", 'POST'])
+@protected(initialized_on=apibp)
 async def update_inventory(request):
     async with create_engine(connection) as engine:
         async with engine.acquire() as conn:
